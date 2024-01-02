@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      imagePullSecrets:
+      - name: my-registry-key
+      containers:
+      - name: frontend
+        image: 760060707047.dkr.ecr.ap-south-1.amazonaws.com/frontend:version-2 #sudo usermod -aG docker $USER && newgrp docker
+        env:
+          - name  :  MYSQL_PASSWORD
+            value :  "password"
+          - name  :  MYSQL_DATABASE
+            value :  "demodb"
+        # image: frontend
+        # imagePullPolicy: Always
+        ports:
+        - containerPort: 30008
+        resources:
+          requests:
+            cpu: "100m"    # Request 100 milliCPU (0.1 CPU)
+            memory: "256Mi"  # Request 256 Mebibytes of memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  # type: ClusterIP 
+  ports:
+    - protocol: TCP
+      port: 30008
+      targetPort: 30008
+      # nodePort: 30008
+
+---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: frontend-service
+# spec:
+#   selector:
+#     app: frontend
+#   type: ClusterIP
+#   ports:
+#     - protocol: TCP
+#       port: 30008
+#       targetPort: 30008
